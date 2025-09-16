@@ -163,7 +163,7 @@
         /* Grid improvements */
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
         }
 
@@ -463,16 +463,17 @@
                     <p class="text-white text-3xl font-bold metric-value" id="totalRecebidos">6</p>
                 </div>
                 <div class="text-center">
-                    <p class="section-title mb-2">Total Pontos</p>
-                    <p class="text-accent text-3xl font-bold metric-value" id="totalPontos">6</p>
-                </div>
-                <div class="text-center">
                     <p class="section-title mb-2">Modal</p>
-                    <p class="text-accent text-xl font-semibold metric-value" id="resumoModal">
+                    <p class="text-white text-xl font-semibold metric-value" id="resumoModal">
                         <i class='bx bx-motorcycle'></i>
                         Moto
                     </p>
                 </div>
+                <div class="text-center">
+                    <p class="section-title mb-2">Pontos</p>
+                    <p class="text-accent text-3xl font-bold metric-value" id="totalPontos">6</p>
+                </div>
+
             </div>
         </div>
 
@@ -729,7 +730,7 @@
 
     <!-- Modal -->
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
-        <div class="card-dark rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden">
+        <div class="card-dark rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
             <div class="p-4 border-b border-gray-600 flex justify-between items-center">
                 <h3 class="text-white font-semibold">Detalhes dos Serviços</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-white">
@@ -743,51 +744,31 @@
             <div class="p-4 overflow-y-auto max-h-96">
                 <!-- Tabs header -->
                 <div class="flex items-center space-x-2 mb-3 border-b border-gray-700 pb-2">
-                    <button id="tabTodos" class="tab-btn tab-active">Todos</button>
-                    <button id="tabInadim" class="tab-btn">Inadimplência</button>
-                    <button id="tabSuporte" class="tab-btn">Suporte de Rua</button>
-                    <div class="ml-auto text-xs text-gray-400" id="modalResumoMini"></div>
+                    <button id="tabTodos" class="tab-btn tab-active flex items-center">
+                        <span>Todos</span>
+                        <span id="ptsTodos"
+                            class="ml-2 text-xs text-slate-200 bg-green-500/20 px-2 py-0.5 rounded-full border border-green-600/50">0
+                        </span>
+                    </button>
+                    <button id="tabInadim" class="tab-btn flex items-center">
+                        <span>Inadimplência</span>
+                        <span id="ptsInadim"
+                            class="ml-2 text-xs text-slate-200 bg-green-500/20 px-2 py-0.5 rounded-full border border-green-600/90">0
+                        </span>
+                    </button>
+                    <button id="tabSuporte" class="tab-btn flex items-center">
+                        <span>Suporte de Rua</span>
+                        <span id="ptsSuporte"
+                            class="ml-2 text-xs text-slate-200 bg-green-500/20 px-2 py-0.5 rounded-full border border-green-600/90">0
+                        </span>
+                    </button>
                 </div>
 
                 <div class="space-y-3" id="servicosDetalhes">
                     <!-- Serviços serão inseridos aqui via JavaScript -->
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-gray-600">
-                    <h4 class="text-white font-medium mb-3">Resumo Financeiro</h4>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-300 flex items-center">
-                                <i class='bx bx-calculator mr-2'></i>
-                                Base (<span id="modalMeta"></span> pontos):
-                            </span>
-                            <span class="text-white font-semibold" id="modalBase">R$ 40,00</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-300 flex items-center">
-                                <i class='bx bx-plus-circle mr-2 text-accent'></i>
-                                Extras (<span id="modalExtras"></span> pontos):
-                            </span>
-                            <span class="text-accent font-semibold" id="modalExtrasValor">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-error flex items-center">
-                                <i class='bx bx-minus-circle mr-2'></i>
-                                Penalidades:
-                            </span>
-                            <span class="text-error font-semibold" id="modalPenalidades">-R$ 8,00</span>
-                        </div>
-                        <hr class="border-gray-600 my-3">
-                        <div
-                            class="flex justify-between items-center font-bold text-lg bg-gradient-to-r from-accent/10 to-green-500/10 p-3 rounded-lg">
-                            <span class="text-white flex items-center">
-                                <i class='bx bx-money mr-2 text-accent'></i>
-                                Total:
-                            </span>
-                            <span class="text-accent text-xl" id="modalTotal">R$ 32,00</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- Resumo Financeiro removido a pedido do usuário -->
             </div>
         </div>
     </div>
@@ -1042,6 +1023,18 @@
                 suporte: suporteRua
             };
 
+            // Atualizar badges de pontos em cada aba
+            function updateTabPoints() {
+                const sumPts = list => list.reduce((sum, s) => sum + (s.pontos || 0), 0);
+                const elTodos = document.getElementById('ptsTodos');
+                const elInad = document.getElementById('ptsInadim');
+                const elSup = document.getElementById('ptsSuporte');
+                if (elTodos) elTodos.textContent = `${sumPts(tabs.todos)}`;
+                if (elInad) elInad.textContent = `${sumPts(tabs.inadim)}`;
+                if (elSup) elSup.textContent = `${sumPts(tabs.suporte)}`;
+            }
+            updateTabPoints();
+
             function setActive(tabKey) {
                 document.getElementById('tabTodos').classList.toggle('tab-active', tabKey === 'todos');
                 document.getElementById('tabInadim').classList.toggle('tab-active', tabKey === 'inadim');
@@ -1090,12 +1083,7 @@
                     servicosDiv.appendChild(div);
                 });
 
-                // mini resumo
-                const mini = document.getElementById('modalResumoMini');
-                if (mini) {
-                    const totalPts = list.reduce((sum, s) => sum + (s.pontos || 0), 0);
-                    mini.textContent = `${list.length} itens • ${totalPts} ponto${totalPts !== 1 ? 's' : ''}`;
-                }
+                // mini resumo removido; pontos agora nas abas
             }
 
             setActive(initialTab);
@@ -1111,13 +1099,19 @@
                 tSup.onclick = () => { setActive('suporte'); renderList('suporte'); };
             }
 
-            // Atualizar resumo financeiro do modal
-            document.getElementById('modalMeta').textContent = values.meta;
-            document.getElementById('modalBase').textContent = `R$ ${values.baseValue.toFixed(2).replace('.', ',')}`;
-            document.getElementById('modalExtras').textContent = values.pontosExtras;
-            document.getElementById('modalExtrasValor').textContent = `R$ ${values.extraValue.toFixed(2).replace('.', ',')}`;
-            document.getElementById('modalPenalidades').textContent = `-R$ ${Math.abs(values.penaltyValue).toFixed(2).replace('.', ',')}`;
-            document.getElementById('modalTotal').textContent = `R$ ${Math.max(0, values.total).toFixed(2).replace('.', ',')}`;
+            // Resumo Financeiro removido; proteger atualizações caso os elementos não existam
+            const elMeta = document.getElementById('modalMeta');
+            const elBase = document.getElementById('modalBase');
+            const elExtras = document.getElementById('modalExtras');
+            const elExtrasVal = document.getElementById('modalExtrasValor');
+            const elPen = document.getElementById('modalPenalidades');
+            const elTotal = document.getElementById('modalTotal');
+            if (elMeta) elMeta.textContent = values.meta;
+            if (elBase) elBase.textContent = `R$ ${values.baseValue.toFixed(2).replace('.', ',')}`;
+            if (elExtras) elExtras.textContent = values.pontosExtras;
+            if (elExtrasVal) elExtrasVal.textContent = `R$ ${values.extraValue.toFixed(2).replace('.', ',')}`;
+            if (elPen) elPen.textContent = `-R$ ${Math.abs(values.penaltyValue).toFixed(2).replace('.', ',')}`;
+            if (elTotal) elTotal.textContent = `R$ ${Math.max(0, values.total).toFixed(2).replace('.', ',')}`;
 
             modal.classList.remove('hidden');
         }
